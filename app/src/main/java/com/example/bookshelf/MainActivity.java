@@ -43,13 +43,15 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     /*
     Generate an arbitrary list of "books" for testing
      */
-    private ArrayList<HashMap<String, String>> getTestBooks() {
-        ArrayList<HashMap<String, String>> books = new ArrayList<HashMap<String, String>>();
-        HashMap<String, String> book;
+    private ArrayList<Book> getTestBooks() {
+        ArrayList<Book> books = new ArrayList<Book>();
+        Book book;
         for (int i = 0; i < 10; i++) {
-            book = new HashMap<String, String>();
-            book.put("title", "Book" + i);
-            book.put("author", "Author" + i);
+            book = new Book();
+            book.setTitle("Book" + i);
+            book.setAuthor("Author" + i);
+            book.setId(i);
+            book.setCoverURL("https://picsum.photos/200");
             books.add(book);
         }
         return books;
