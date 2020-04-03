@@ -1,5 +1,8 @@
 package com.example.bookshelf;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Book implements java.io.Serializable {
 
     private int id;
@@ -7,12 +10,37 @@ public class Book implements java.io.Serializable {
     private String author;
     private String coverURL;
 
+
+    private static final String ID_FIELD = "book_id";
+    private static final String TITLE_FIELD = "title";
+    private static final String AUTHOR_FIELD = "author";
+    private static final String COVER_FIELD = "cover_url";
+
+
+
     public Book(){
 
     }
 
     public Book(int id) {
         this.id = id;
+    }
+
+    public Book(String title, String author, String coverURL){
+        this.title=title;
+        this.author=author;
+        this.coverURL=coverURL;
+    }
+
+    public Book(JSONObject jBook){
+        try {
+            this.id=jBook.getInt(ID_FIELD);
+            this.title=jBook.getString(TITLE_FIELD);
+            this.author=jBook.getString(AUTHOR_FIELD);
+            this.coverURL=jBook.getString(COVER_FIELD);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public int getId() {

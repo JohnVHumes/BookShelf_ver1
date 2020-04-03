@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +14,20 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class BookListFragment extends Fragment {
 
     private static final String BOOK_LIST_KEY = "booklist";
     private ArrayList<Book> books;
+    private Context context;
+    private ListView lView;
+    private Book book;
+    private  BooksAdapter booksAdapter;
 
     BookSelectedInterface parentActivity;
+
+
 
     public BookListFragment() {}
 
@@ -32,10 +40,28 @@ public class BookListFragment extends Fragment {
          therefore we can place a HashMap inside a bundle
          by using that put() method.
          */
-        args.putSerializable(BOOK_LIST_KEY, books);
+        //args.putSerializable(BOOK_LIST_KEY, books);
         fragment.setArguments(args);
         return fragment;
     }
+
+    public void dataUpdate(final ArrayList<Book> books) {
+
+        booksAdapter = new BooksAdapter(getContext(), books);
+        booksAdapter.notifyDataSetChanged();
+        lView.setAdapter(booksAdapter);
+
+        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                book = books.get(position);
+                ((BookSelectedInterface) context).bookSelected(position);
+            }
+        });
+    }
+
+
+
 
     @Override
     public void onAttach(Context context) {
@@ -50,6 +76,8 @@ public class BookListFragment extends Fragment {
         } else {
             throw new RuntimeException("Please implement the required interface(s)");
         }
+
+        this.context = context;
     }
 
     @Override
@@ -63,18 +91,22 @@ public class BookListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ListView listView = (ListView) inflater.inflate(R.layout.fragment_book_list, container, false);
 
-        listView.setAdapter(new BooksAdapter(getContext(), books));
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        View view =  inflater.inflate(R.layout.fragment_book_list, container, false);
+        lView=view.findViewById(R.id.fragmentListView);
+        books = new ArrayList<>();
+        booksAdapter=new BooksAdapter(getContext(), books);
+        lView.setAdapter(booksAdapter);
+
+
+/*        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 parentActivity.bookSelected(position);
             }
-        });
-
-        return listView;
+        });*/
+        return lView;
     }
 
     /*
@@ -82,5 +114,6 @@ public class BookListFragment extends Fragment {
      */
     interface BookSelectedInterface {
         void bookSelected(int index);
+
     }
 }
