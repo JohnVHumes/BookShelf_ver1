@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -34,33 +35,64 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
-
+    //todo: pass the ball to tucker by which i mean store the needed variables in a bundle onpause
+    final static String BOOK_ARRAY_INDEX="book_index";
     FragmentManager fm;
 
     boolean twoPane;
+    private static final String BOOK_LIST_KEY ="book_list";
+
     BookDetailsFragment bookDetailsFragment;
     BookListFragment bookListFragment;
     String searchString;
     String URLString;
     RequestQueue requestQueue;
+    int selectedBook;
 
     ArrayList<Book> books = new ArrayList<Book>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        selectedBook=-1;
+        if (savedInstanceState != null){
+
+            this.books=(ArrayList<Book>) savedInstanceState.getSerializable(BOOK_LIST_KEY);
+            this.selectedBook=savedInstanceState.getInt(BOOK_ARRAY_INDEX);
+            Log.d("Instace State Restored:",this.books.toString());
+
+        }
+        else{
+            books=new ArrayList<Book>();
+        }
+
         setContentView(R.layout.activity_main);
 
-        twoPane = findViewById(R.id.container2) != null;
 
         requestQueue= Volley.newRequestQueue(this);
 
         fm = getSupportFragmentManager();
 
-        bookListFragment = new BookListFragment();
+ //       if (savedInstanceState==null){
+            //first run
+
+            Log.d("Books", books.toString());
+            bookListFragment = BookListFragment.newInstance(this.books);
+//        }
+//        else{
+//
+//            //subsequent run
+//
+//        }
+
+        twoPane = findViewById(R.id.container2) != null;
+
+
         fm.beginTransaction()
-                .replace(R.id.container1, bookListFragment = BookListFragment.newInstance(books))
-        .commit();
+                .replace(R.id.container1, bookListFragment)
+                .commit();
 
         /*
         If we have two containers available, load a single instance
@@ -71,58 +103,99 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             fm.beginTransaction()
                     .replace(R.id.container2, bookDetailsFragment)
                     .commit();
+
         }
+
 
         findViewById(R.id.searchButton).setOnClickListener(new View.OnClickListener(){
             @Override
-                    public void onClick(View v){
+            public void onClick(View v){
 
 
                 searchString=((EditText)findViewById(R.id.searchText)).getText().toString();
-                Log.d("Got search", searchString);
+                //Log.d("Got search", searchString);
                 URLString="https://kamorris.com/lab/abp/booksearch.php?search=" + searchString;
-                Log.d("Got URL", URLString);
+                //Log.d("Got URL", URLString);
                 JsonArrayRequest jsonRequest = new JsonArrayRequest(Request.Method.GET,URLString, null,
-                    new Response.Listener<JSONArray>() {
-                        @Override
-                        public void onResponse(JSONArray response) {
+                        new Response.Listener<JSONArray>() {
+                            @Override
+                            public void onResponse(JSONArray response) {
 
-                            try {
-                                //JSONArray jsonArray= new JSONArray((JSONObject) response);
+                                try {
+                                    //JSONArray jsonArray= new JSONArray((JSONObject) response);
 
-                                Log.d("Got JSON", response.toString(0));
+                                    //Log.d("Got JSON", response.toString(0));
                                     books.clear();
-                                for (int i = 0; i < response.length(); i++) {
-                                    books.add(new Book(response.getJSONObject(i)));
+                                    for (int i = 0; i < response.length(); i++) {
+                                        books.add(new Book(response.getJSONObject(i)));
+                                    }
+
+
+                                    Log.d("kistenBooks", books.toString());
+
+
+                                    if(!twoPane){
+                                        fm.beginTransaction()
+                                                .replace(R.id.container1, bookListFragment)
+                                                .commit();
+                                    }
+
+
+
+
+                                    bookListFragment.dataUpdate(books);
+
                                 }
+                                catch (JSONException e){
+                                    e.printStackTrace();
+                                }
+                            }
 
-                                bookListFragment.dataUpdate(books);
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                Toast.makeText(MainActivity.this, "WHY DID YOU SET ME ON FIRE, SPONGEBOB? WHY DIDN'T YOU JUST WRITE YOUR ESSAY?", Toast.LENGTH_LONG);
+                                Log.d("JSON on error response", error.toString());
 
                             }
-                            catch (JSONException e){
-                                e.printStackTrace();
-                            }
-                        }
-
-                },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(MainActivity.this, "WHY DID YOU SET ME ON FIRE, SPONGEBOB? WHY DIDN'T YOU JUST WRITE YOUR ESSAY?", Toast.LENGTH_LONG);
-                            Log.d("JSON on error response", error.toString());
-
-                    }
-                });
+                        });
 
                 requestQueue.add(jsonRequest);
 
+
+
+
             }
         });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     /*
     Generate an arbitrary list of "books" for testing
      */
+
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        bookListFragment.dataUpdate(books);
+
+        if (selectedBook >=0 && twoPane){
+            bookSelected(selectedBook);
+        }
+
+
+
+    }
+
     private ArrayList<Book> getTestBooks() {
         ArrayList<Book> books = new ArrayList<Book>();
         Book book;
@@ -142,11 +215,13 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void bookSelected(int index) {
 
+        selectedBook=index;
+
         if (twoPane)
             /*
             Display selected book using previously attached fragment
              */
-            bookDetailsFragment.displayBook(getTestBooks().get(index));
+            bookDetailsFragment.displayBook(books.get(index));
         else {
             /*
             Display book using new fragment
@@ -165,6 +240,23 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void onPause(){
         super.onPause();
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putSerializable(BOOK_LIST_KEY,books);
+        outState.putInt(BOOK_ARRAY_INDEX,selectedBook);
+        Log.d("StoreBooks",books.toString());
+
+
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
 
     }
 }

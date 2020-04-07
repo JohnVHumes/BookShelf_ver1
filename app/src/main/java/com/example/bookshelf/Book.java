@@ -1,9 +1,14 @@
 package com.example.bookshelf;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Book implements java.io.Serializable {
+import java.io.Serializable;
+
+public class Book implements Serializable {
 
     private int id;
     private String title;

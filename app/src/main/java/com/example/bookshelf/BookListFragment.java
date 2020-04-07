@@ -3,6 +3,8 @@ package com.example.bookshelf;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -17,13 +19,13 @@ import java.util.HashMap;
 import java.util.List;
 
 public class BookListFragment extends Fragment {
-
-    private static final String BOOK_LIST_KEY = "booklist";
+    private static final String BOOK_LIST_KEY ="book_list";
     private ArrayList<Book> books;
     private Context context;
     private ListView lView;
     private Book book;
     private  BooksAdapter booksAdapter;
+
 
     BookSelectedInterface parentActivity;
 
@@ -40,24 +42,21 @@ public class BookListFragment extends Fragment {
          therefore we can place a HashMap inside a bundle
          by using that put() method.
          */
-        //args.putSerializable(BOOK_LIST_KEY, books);
+        args.putSerializable(BOOK_LIST_KEY, books);
         fragment.setArguments(args);
         return fragment;
     }
 
     public void dataUpdate(final ArrayList<Book> books) {
 
-        booksAdapter = new BooksAdapter(getContext(), books);
-        booksAdapter.notifyDataSetChanged();
-        lView.setAdapter(booksAdapter);
+//        Bundle args = new Bundle();
+//        args.putSerializable(BOOK_LIST_KEY, books);
+//        this.setArguments(args);
 
-        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                book = books.get(position);
-                ((BookSelectedInterface) context).bookSelected(position);
-            }
-        });
+        this.books=books;
+        booksAdapter.books=books;
+        booksAdapter.notifyDataSetChanged();
+
     }
 
 
@@ -83,37 +82,48 @@ public class BookListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            books = (ArrayList) getArguments().getSerializable(BOOK_LIST_KEY);
-        }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-
         View view =  inflater.inflate(R.layout.fragment_book_list, container, false);
+
         lView=view.findViewById(R.id.fragmentListView);
-        books = new ArrayList<>();
-        booksAdapter=new BooksAdapter(getContext(), books);
+
+        if(books==null){
+            books=new ArrayList<Book>();
+            Log.e("Null Error","BookList Did not Exist on Create View");
+        }
+
+
+        booksAdapter = new BooksAdapter(this.getContext(), books);
         lView.setAdapter(booksAdapter);
 
-
-/*        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                parentActivity.bookSelected(position);
+                book = books.get(position);
+                ((BookSelectedInterface) context).bookSelected(position);
             }
-        });*/
+        });
+
         return lView;
     }
 
+
+
+
+
     /*
-    Interface for communicating with attached activity
-     */
+            Interface for communicating with attached activity
+             */
     interface BookSelectedInterface {
         void bookSelected(int index);
 
     }
+
+
 }
