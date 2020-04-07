@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     String URLString;
     RequestQueue requestQueue;
     int selectedBook;
+    boolean displayFragmentActive;
 
     ArrayList<Book> books = new ArrayList<Book>();
 
@@ -103,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             fm.beginTransaction()
                     .replace(R.id.container2, bookDetailsFragment)
                     .commit();
+                    displayFragmentActive=true;
 
         }
 
@@ -144,6 +146,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
 
                                     bookListFragment.dataUpdate(books);
+                                    selectedBook=-1;
 
                                 }
                                 catch (JSONException e){
@@ -188,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
         bookListFragment.dataUpdate(books);
 
-        if (selectedBook >=0 && twoPane){
+        if (selectedBook >=0){
             bookSelected(selectedBook);
         }
 

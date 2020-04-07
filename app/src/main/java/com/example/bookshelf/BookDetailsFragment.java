@@ -7,7 +7,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -18,6 +21,7 @@ public class BookDetailsFragment extends Fragment {
     private Book book;
 
     TextView titleTextView, authorTextView;
+    ImageView imageView;
 
     public BookDetailsFragment() {}
 
@@ -50,6 +54,7 @@ public class BookDetailsFragment extends Fragment {
 
         titleTextView = v.findViewById(R.id.titleTextView);
         authorTextView = v.findViewById(R.id.authorTextView);
+        imageView= v.findViewById(R.id.imageView);
 
         /*
         Because this fragment can be created with or without
@@ -68,5 +73,6 @@ public class BookDetailsFragment extends Fragment {
     public void displayBook(Book book) {
         titleTextView.setText(book.getTitle());
         authorTextView.setText(book.getAuthor());
+        Picasso.get().load(book.getCoverURL()).into(imageView);
     }
 }
