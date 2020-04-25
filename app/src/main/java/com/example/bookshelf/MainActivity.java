@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -34,6 +37,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import edu.temple.audiobookplayer.AudiobookService;
+
 public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
     //todo: pass the ball to tucker by which i mean store the needed variables in a bundle onpause
     final static String BOOK_ARRAY_INDEX="book_index";
@@ -49,8 +54,24 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     RequestQueue requestQueue;
     int selectedBook;
     boolean displayFragmentActive;
+    boolean connected;
+    AudiobookService.MediaControlBinder controlBinder;
 
     ArrayList<Book> books = new ArrayList<Book>();
+
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+            
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

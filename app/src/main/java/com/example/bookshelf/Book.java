@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class Book implements Serializable {
 
     private int id;
+    private int duration;
     private String title;
     private String author;
     private String coverURL;
@@ -20,6 +21,7 @@ public class Book implements Serializable {
     private static final String TITLE_FIELD = "title";
     private static final String AUTHOR_FIELD = "author";
     private static final String COVER_FIELD = "cover_url";
+    private static final String DURATION_FIELD="duration";
 
 
 
@@ -35,7 +37,9 @@ public class Book implements Serializable {
         this.title=title;
         this.author=author;
         this.coverURL=coverURL;
+        this.duration=0;
     }
+
 
     public Book(JSONObject jBook){
         try {
@@ -43,6 +47,7 @@ public class Book implements Serializable {
             this.title=jBook.getString(TITLE_FIELD);
             this.author=jBook.getString(AUTHOR_FIELD);
             this.coverURL=jBook.getString(COVER_FIELD);
+            this.duration=jBook.getInt(DURATION_FIELD);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -79,6 +84,10 @@ public class Book implements Serializable {
     public void setCoverURL(String coverURL) {
         this.coverURL = coverURL;
     }
+
+    public int getDuration(){return duration;}
+
+    public void setDuration(int duration){this.duration=duration;}
 
 
 
