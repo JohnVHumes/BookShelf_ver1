@@ -106,7 +106,7 @@ public class BookListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 book = books.get(position);
-                ((BookSelectedInterface) context).bookSelected(position);
+                ((BookSelectedInterface) context).bookSelected(book);
             }
         });
 
@@ -121,7 +121,7 @@ public class BookListFragment extends Fragment {
             Interface for communicating with attached activity
              */
     interface BookSelectedInterface {
-        void bookSelected(int index);
+        void bookSelected(Book book);
 
     }
 
