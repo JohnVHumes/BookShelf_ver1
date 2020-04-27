@@ -112,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             this.books=(ArrayList<Book>) savedInstanceState.getSerializable(BOOK_LIST_KEY);
             this.selectedBook=(Book) savedInstanceState.getSerializable(PLAYBACK_BOOK_KEY);
             titleTextView.setText("NOW PLAYING: " +selectedBook.getTitle());
+            seekBar.setMax(selectedBook.getDuration());
             //this is probably gonna break pausing and resuming
             //this.playbackProgress=savedInstanceState.getInt(PLAYBACK_TIME_KEY);
 
@@ -243,6 +244,25 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
         });
 
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser){
+                    controlBinder.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         //findViewById(R.id.seekBar).
 
     }
@@ -352,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     public void stopBook(){
         controlBinder.stop();
         titleTextView.setText("");
-        playbackProgress=0;
+        updateSeekBar(0);
         nowPlayingID=0;
 
         stopService(serviceIntent);
